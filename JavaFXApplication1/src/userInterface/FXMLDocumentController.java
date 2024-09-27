@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package sample;
+package userInterface;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,13 +7,21 @@ import javafx.event.ActionEvent;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * La clase FXMLDocumentController maneja la lógica de la interfaz gráfica
+ * definida en el archivo FXML. Controla la interacción del usuario y la carga
+ * de datos.
+ */
 public class FXMLDocumentController {
 
     @FXML
@@ -46,12 +49,23 @@ public class FXMLDocumentController {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "abcd*1234";
 
+    // Logger para registrar eventos e información
+    private static final Logger logger = Logger.getLogger(FXMLDocumentController.class.getName());
+
+    /**
+     * Método que maneja la acción del botón para cargar datos.
+     *
+     * @param event El evento de acción que dispara este método.
+     */
     @FXML
     private void handleButtonAction(ActionEvent event) {
-        try {
-            // Cargar archivo de configuración
+        try (InputStream configInput = getClass().getResourceAsStream("/dataAcces/Config.properties")) {
+            if (configInput == null) {
+                logger.log(Level.SEVERE, "No se pudo encontrar el archivo de configuración.");
+                return;
+            }
+
             Properties configProperties = new Properties();
-            FileInputStream configInput = new FileInputStream("src/sample/Config.properties");
             configProperties.load(configInput);
 
             // Determinar el origen de datos
@@ -59,25 +73,33 @@ public class FXMLDocumentController {
 
             if ("file".equalsIgnoreCase(dataSource)) {
                 // Leer datos del archivo de datos
-                loadFromDataFile("src/data.properties");
+                loadFromDataFile("src/dataAcces/data.properties");
             } else if ("db".equalsIgnoreCase(dataSource)) {
                 // Leer datos de la base de datos
                 loadFromDatabase();
+            } else {
+                logger.log(Level.WARNING, "Origen de datos desconocido en Config.properties: {0}", dataSource);
             }
 
-            // Cerrar el flujo de entrada
-            configInput.close();
-
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al leer el archivo de configuración.", e);
         }
     }
 
-    // Método para cargar datos desde el archivo de propiedades
+    /**
+     * Método para cargar datos desde un archivo de propiedades.
+     *
+     * @param filePath La ruta del archivo de propiedades desde donde se
+     * cargarán los datos.
+     */
     private void loadFromDataFile(String filePath) {
-        try {
+        try (InputStream dataInput = getClass().getResourceAsStream("/data.properties")) {
+            if (dataInput == null) {
+                logger.log(Level.SEVERE, "No se pudo encontrar el archivo de datos: " + filePath);
+                return;
+            }
+
             Properties dataProperties = new Properties();
-            FileInputStream dataInput = new FileInputStream(filePath);
             dataProperties.load(dataInput);
 
             // Obtener los valores del archivo de datos
@@ -92,19 +114,22 @@ public class FXMLDocumentController {
             label22.setText(email);
             label23.setText(edad);
 
-            // Cerrar el flujo de entrada
-            dataInput.close();
+            logger.log(Level.INFO, "Datos cargados desde archivo: {0}", filePath);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al leer el archivo de datos: " + filePath, e);
         }
     }
 
-    // Método para cargar datos desde la base de datos
+    /**
+     * Método para cargar datos desde la base de datos y mostrarlos en la
+     * interfaz.
+     */
     private void loadFromDatabase() {
+        String query = "SELECT * FROM user LIMIT 1";
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM user LIMIT 1")) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)) {
 
             if (rs.next()) {
                 // Obtener los valores de la base de datos
@@ -118,10 +143,14 @@ public class FXMLDocumentController {
                 label21.setText(apellido);
                 label22.setText(email);
                 label23.setText(String.valueOf(edad));
+
+                logger.log(Level.INFO, "Datos cargados desde la base de datos.");
+            } else {
+                logger.log(Level.WARNING, "No se encontraron registros en la base de datos.");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al consultar la base de datos.", e);
         }
     }
 }

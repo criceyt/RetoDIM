@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="449.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="449.0" prefWidth="492.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="userInterface.FXMLDocumentController">
     <children>
         <Button fx:id="button" layoutX="193.0" layoutY="309.0" onAction="#handleButtonAction" prefHeight="39.0" prefWidth="106.0" text="cargar datos" />
         <Label fx:id="label" layoutX="75.0" layoutY="123.0" text="Nombre:" />
@@ -13,7 +13,7 @@
         <Label fx:id="label12" layoutX="75.0" layoutY="207.0" text="Edad:" />
         <Label fx:id="label2" layoutX="150.0" layoutY="122.0" prefHeight="18.0" prefWidth="133.0" />
         <Label fx:id="label21" layoutX="150.0" layoutY="150.0" prefHeight="18.0" prefWidth="134.0" />
-        <Label fx:id="label22" layoutX="227.0" layoutY="178.0" prefHeight="18.0" prefWidth="241.0" />
+        <Label fx:id="label22" layoutX="205.0" layoutY="178.0" prefHeight="18.0" prefWidth="241.0" />
         <Label fx:id="label23" layoutX="121.0" layoutY="206.0" prefHeight="18.0" prefWidth="58.0" />
     </children>
 </AnchorPane>
